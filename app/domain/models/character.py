@@ -4,7 +4,7 @@ from sqlalchemy import JSON
 from typing import Any, Optional
 from app.domain.models.base import Base
 from sqlalchemy.orm import Mapped, mapped_column
-from app.domain.models.static.model_stat import GritStats, VitalStats
+from app.domain.models.static import GritStats, VitalStats
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
 class BodyParts(BaseModel):

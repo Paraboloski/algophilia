@@ -1,6 +1,7 @@
 *.db
 .env
 
+logs/
 dist/
 .venv
 build/

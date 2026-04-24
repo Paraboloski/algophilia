@@ -14,7 +14,7 @@ def Content(title: str, message: str) -> ft.Container:
             controls=cast(list, [
                 Title(title, settings.APP_PAGE_MAIN_COLOR, "Cinzel Black", 50, ft.TextAlign.CENTER),
                 Divider(settings.APP_PAGE_MAIN_COLOR, 4, 80),
-                Label(message, settings.APP_PAGE_MAIN_COLOR,"Cinzel Medium", 20, 4, ft.TextAlign.CENTER),
+                Label(message, settings.APP_PAGE_MAIN_COLOR,"Cinzel Medium", 10, 4, ft.TextAlign.CENTER),
             ]),
             alignment=ft.MainAxisAlignment.CENTER,
             horizontal_alignment=ft.CrossAxisAlignment.CENTER,
