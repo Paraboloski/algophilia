@@ -35,7 +35,7 @@ class Settings:
     STATIC_WEAPON_TAG_PATH = _TEMPLATES / "static_weapon_tag.yaml"
 
     DATABASE_PATH: Path = Path(
-        _env.string("DATABASE_URL").unwrap_or("algophilia.db").replace("sqlite:///", "")
+        _env.string("DATABASE_URL").unwrap_or("store/algophilia.db").replace("sqlite:///", "")
     )
 
 settings = Settings()

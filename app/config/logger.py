@@ -5,7 +5,6 @@ from pathlib import Path
 from datetime import datetime
 from dataclasses import dataclass, field
 
-
 class Level(Enum):
     INFO = "INFO"
     DEBUG = "DEBUG"
@@ -13,44 +12,45 @@ class Level(Enum):
     WARNING = "WARNING"
 
 @dataclass
-class LogEntry:
+class Log:
     message:   str
     level:     Level
-    line:      int = 0
-    caller:    str = ""
+    target_class:    str = ""
+    line_of_code:      int = 0
     exception: BaseException | None = None
     timestamp: datetime = field(default_factory=datetime.now)
 
     def __str__(self) -> str:
         ts = self.timestamp.strftime("%Y-%m-%d %H:%M:%S")
-        loc = f"{self.caller}:{self.line}" if self.caller else "?"
+        loc = f"{self.target_class}:{self.line_of_code}" if self.target_class else "?"
         exc = f"\n  ↳ {type(self.exception).__name__}: {self.exception}" if self.exception else ""
         return f"[{ts}] [{self.level.value:<7}] [{loc}] {self.message}{exc}"
 
 
 class Logger:
-    def __init__(self, max_entries: int = 200, flush_every: int = 10):
-        self._entries:     list[LogEntry] = []
-        self._max_entries: int = max_entries
-        self._flush_every: int = flush_every
-        self._pending:     int = 0
-        self._handles:     dict[Level, IO[str]] = {}
-
+    def __init__(self):
+        self._i:     int = 0
+        self._flush_every: int = 10
+        self._logs:     list[Log] = []
+        self._max_log_number: int = 200
+        self._levels:     dict[Level, IO[str]] = {}
+        
     def init(self, base_dir: Path) -> None:
-        logs_dir = base_dir / "logs"
-        logs_dir.mkdir(exist_ok=True)
+        _dir = base_dir / "logs"
+        _dir.mkdir(exist_ok=True)
+
         for level in Level:
-            path = logs_dir / f"{level.value.lower()}.log"
-            self._handles[level] = path.open("a", encoding="utf-8", buffering=1)
+            path = _dir / f"{level.value.lower()}.log"
+            self._levels[level] = path.open("a", encoding="utf-8", buffering=1)
 
     def shutdown(self) -> None:
-        for handle in self._handles.values():
+        for level in self._levels.values():
             try:
-                handle.flush()
-                handle.close()
+                level.flush()
+                level.close()
             except Exception:
                 pass
-        self._handles.clear()
+        self._levels.clear()
 
     def debug(self, message: str, exc: BaseException | None = None) -> None:
         self._log(Level.DEBUG, message, exc)
@@ -65,52 +65,62 @@ class Logger:
         self._log(Level.ERROR, message, exc)
 
     def _log(self, level: Level, message: str, exc: BaseException | None) -> None:
-        frame = inspect.stack()[2]
-        caller = self._resolve_caller(frame)
-        line = frame.lineno
+        root = inspect.stack()[2]
+        target_class = self._resolve_target_class(root)
+        line_of_code = root.lineno
 
-        entry = LogEntry(level=level, message=message,caller=caller, line=line, exception=exc)
+        log = Log(level=level, message=message, target_class=target_class,
+                         line_of_code=line_of_code, exception=exc)
 
-        self._entries.append(entry)
-        if len(self._entries) > self._max_entries: self._entries.pop(0)
+        self._logs.append(log)
+        if len(self._logs) > self._max_log_number:
+            self._logs.pop(0)
 
-        print(entry)
-        self._write(entry)
+        print(log)
+        self._write(log)
 
-    def _write(self, entry: LogEntry) -> None:
-        handle = self._handles.get(entry.level)
-        if handle is None:
+    def _write(self, log: Log) -> None:
+        level = self._levels.get(log.level)
+        if level is None:
             return
         try:
-            handle.write(str(entry) + "\n")
-            self._pending += 1
-            if entry.level == Level.ERROR or self._pending >= self._flush_every:
-                handle.flush()
-                self._pending = 0
+            level.write(str(log) + "\n")
+            self._i += 1
+            if log.level == Level.ERROR or self._i >= self._flush_every:
+                level.flush()
+                self._i = 0
         except Exception as e:
             print(f"[Logger] Scrittura fallita: {e}")
 
-    def _resolve_caller(self, frame: inspect.FrameInfo) -> str:
-        local_self = frame.frame.f_locals.get("self")
-        local_cls = frame.frame.f_locals.get("cls")
-        if local_self is not None: cls_name = type(local_self).__name__
-        elif local_cls is not None: cls_name = local_cls.__name__
-        else: cls_name = frame.frame.f_globals.get("__name__", "?")
-        return f"{cls_name}.{frame.function}"
+    def _resolve_target_class(self, root: inspect.FrameInfo) -> str:
+        local_self = root.frame.f_locals.get("self")
 
-    def all(self) -> list[LogEntry]:
-        return list(self._entries)
+        local_cls = root.frame.f_locals.get("cls")
 
-    def filter(self, level: Level) -> list[LogEntry]:
-        return [e for e in self._entries if e.level == level]
+        if local_self is not None:
+            cls_name = type(local_self).__name__
 
-    def errors(self) -> list[LogEntry]:
+        elif local_cls is not None:
+            cls_name = local_cls.__name__
+        else:
+            cls_name = root.frame.f_globals.get("__name__", "?")
+
+        return f"{cls_name}.{root.function}"
+
+    def all(self) -> list[Log]:
+        return list(self._logs)
+
+    def filter(self, level: Level) -> list[Log]:
+        return [e for e in self._logs if e.level == level]
+
+    def errors(self) -> list[Log]:
         return self.filter(Level.ERROR)
 
     def clear(self) -> None:
-        self._entries.clear()
+        self._logs.clear()
 
     def __len__(self) -> int:
-        return len(self._entries)
+        return len(self._logs)
+
 
 logger = Logger()

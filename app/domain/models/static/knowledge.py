@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from app.domain.models.static.model_stat import Attribute
+from app.domain.models.static.stat import Attribute
 
 class Knowledge(BaseModel):
     key:         str

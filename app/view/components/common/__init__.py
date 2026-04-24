@@ -1,6 +1,6 @@
-from app.view.components.common.flet_label import Label
-from app.view.components.common.flet_title import Title
-from app.view.components.common.flet_divider import Divider
+from app.view.components.common.label import Label
+from app.view.components.common.title import Title
+from app.view.components.common.divider import Divider
 
 __all__ = [
     "Label",

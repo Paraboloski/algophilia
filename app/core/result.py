@@ -1,37 +1,24 @@
 from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import TypeVar, Callable, Generic, Union, Never, cast
+from typing import TypeVar, Callable, Generic, Union, Never
 
 T = TypeVar("T")
 U = TypeVar("U")
-
-
-class Monad(Generic[T]):
-    def bind(self, function: Callable[[T], Monad[U]]) -> Monad[U]:
-        raise NotImplementedError
-
-    def map(self, function: Callable[[T], U]) -> Monad[U]:
-        return self.bind(lambda x: Ok(function(x)))
-
-    def unwrap(self) -> T:
-        raise NotImplementedError
-
-    def is_ok(self) -> bool:
-        raise NotImplementedError
-
-    def unwrap_or(self, default: T) -> T:
-        raise NotImplementedError
-
+E = TypeVar("E", bound=BaseException)
 
 @dataclass(frozen=True)
-class Ok(Monad[T]):
+class Ok(Generic[T]):
     value: T
 
-    def bind(self, function: Callable[[T], Monad[U]]) -> Monad[U]:
+    def bind(self, function: Callable[[T], Result[U]]) -> Result[U]:
         try:
             return function(self.value)
         except Exception as e:
-            return cast(Monad[U], Err(e))
+            return Err(e)
+
+    def map(self, function: Callable[[T], U]) -> Result[U]:
+        return self.bind(lambda x: Ok(function(x)))
 
     def unwrap(self) -> T:
         return self.value
@@ -47,10 +34,13 @@ class Ok(Monad[T]):
 
 
 @dataclass(frozen=True)
-class Err(Monad[Never]):
-    error: Exception
+class Err(Generic[E]):
+    error: E
 
-    def bind(self, function: Callable) -> Monad[Never]:
+    def bind(self, function: Callable) -> Result[Never]:
+        return self
+
+    def map(self, function: Callable) -> Result[Never]:
         return self
 
     def unwrap(self) -> Never:
@@ -67,7 +57,6 @@ class Err(Monad[Never]):
 
 
 Result = Union[Ok[T], Err]
-
 
 def result(function: Callable[..., T]) -> Callable[..., Result[T]]:
     def wrapper(*args, **kwargs) -> Result[T]:

@@ -1,7 +1,7 @@
 import os
 from typing import Any, Callable, cast
+from app.core.exception import EnvError
 from app.core.result import Ok, Err, Result
-from app.core.exception import CastError, InvalidValue, MissingVariable
 
 class Env:
     def __init__(self, variable: str = ""):
@@ -13,7 +13,7 @@ class Env:
     def _get(self, name: str) -> Result[str]:
         value = os.getenv(self._key(name))
         if value is None:
-            return Err(MissingVariable(self._key(name)))
+            return Err(EnvError(f"Variabile mancante: '{self._key(name)}'"))
         return Ok(value)
 
     def _cast(self, name: str, function: Callable[[str], Any]) -> Result[Any]:
@@ -21,7 +21,7 @@ class Env:
             try:
                 return function(v)
             except (ValueError, TypeError):
-                raise CastError(self._key(name), v, function.__name__)
+                raise EnvError(f"Impossibile convertire '{self._key(name)}={v!r}' in {function.__name__}")
 
         return cast(Result[Any], self._get(name).bind(lambda v: Ok(safe(v))))
 
@@ -40,6 +40,6 @@ class Env:
                 return True
             if v.lower() in {"0", "false", "no", "off"}:
                 return False
-            raise InvalidValue(self._key(name), v)
+            raise EnvError(f"Valore non valido per '{self._key(name)}': '{v}'")
 
         return cast(Result[bool], self._get(name).bind(lambda v: Ok(parse(v))))

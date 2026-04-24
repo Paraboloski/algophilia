@@ -23,7 +23,7 @@ def Fallback(page: ft.Page, title: str, message: str) -> None:
 
     page.clean()
     
-    bg = ft.Container(
+    page.add(ft.Container(
         content=Page(title, message),        
         expand=True,                          
         bgcolor=settings.APP_PAGE_BG_COLOR,
@@ -32,6 +32,4 @@ def Fallback(page: ft.Page, title: str, message: str) -> None:
             fit=ft.BoxFit.COVER,
             opacity=1.0
         ),
-    )
-    
-    page.add(bg)
+    ))

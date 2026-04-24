@@ -1,8 +1,8 @@
 [project]
 name = "algophilia"
 version = "0.1.0"
-description = "A"
-readme = ""
+description = "Algophilia - Offline Ready Android Companion App"
+readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
     "aiosqlite>=0.22.1",
