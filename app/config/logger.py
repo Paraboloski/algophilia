@@ -3,13 +3,16 @@ from enum import Enum
 from typing import IO
 from pathlib import Path
 from datetime import datetime
+from app.core.exception import AppError
 from dataclasses import dataclass, field
+
 
 class Level(Enum):
     INFO = "INFO"
     DEBUG = "DEBUG"
     ERROR = "ERROR"
     WARNING = "WARNING"
+
 
 @dataclass
 class Log:
@@ -31,18 +34,21 @@ class Logger:
     def __init__(self):
         self._i:     int = 0
         self._flush_every: int = 10
+        self._subscribers: list = []
         self._logs:     list[Log] = []
         self._max_log_number: int = 200
+        self._base_dir: Path | None = None
+        self._max_file_size: int = 5 * 1024 * 1024
         self._levels:     dict[Level, IO[str]] = {}
-        self._subscribers: list = []  
-        
+
     def subscribe(self, callback) -> None:
         self._subscribers.append(callback)
 
     def unsubscribe(self, callback) -> None:
         self._subscribers = [s for s in self._subscribers if s != callback]
-        
+
     def init(self, base_dir: Path) -> None:
+        self._base_dir = base_dir
         _dir = base_dir / "logs"
         _dir.mkdir(exist_ok=True)
 
@@ -55,9 +61,18 @@ class Logger:
             try:
                 level.flush()
                 level.close()
-            except Exception:
+            except AppError:
                 pass
         self._levels.clear()
+
+        if self._base_dir:
+            import shutil
+            _dir = self._base_dir / "logs"
+            if _dir.exists():
+                try:
+                    shutil.rmtree(_dir)
+                except AppError:
+                    pass
 
     def debug(self, message: str, exc: BaseException | None = None) -> None:
         self._log(Level.DEBUG, message, exc)
@@ -76,35 +91,45 @@ class Logger:
         target_class = self._resolve_target_class(root)
         line_of_code = root.lineno
 
-        log = Log(level=level, message=message, target_class=target_class,
-                         line_of_code=line_of_code, exception=exc)
+        log = Log(
+            level=level, 
+            message=message, 
+            target_class=target_class,
+            line_of_code=line_of_code, 
+            exception=exc
+        )
 
         self._logs.append(log)
         if len(self._logs) > self._max_log_number:
             self._logs.pop(0)
 
         print(log)
-        
+
         for sub in self._subscribers:
             try:
                 sub(log)
             except Exception:
                 pass
-    
+
         self._write(log)
 
     def _write(self, log: Log) -> None:
-        level = self._levels.get(log.level)
-        if level is None:
+        level_file = self._levels.get(log.level)
+        if level_file is None or self._base_dir is None:
             return
+
         try:
-            level.write(str(log) + "\n")
+            path = self._base_dir / "logs" / f"{log.level.value.lower()}.log"
+            if path.exists() and path.stat().st_size > self._max_file_size:
+                return
+
+            level_file.write(str(log) + "\n")
             self._i += 1
             if log.level == Level.ERROR or self._i >= self._flush_every:
-                level.flush()
+                level_file.flush()
                 self._i = 0
-        except Exception as e:
-            print(f"[Logger] Scrittura fallita: {e}")
+        except AppError:
+            pass
 
     def _resolve_target_class(self, root: inspect.FrameInfo) -> str:
         local_self = root.frame.f_locals.get("self")

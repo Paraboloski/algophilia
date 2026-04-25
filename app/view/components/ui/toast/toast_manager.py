@@ -1,12 +1,12 @@
 from __future__ import annotations
 
+import time
 import threading
 import flet as ft
 from typing import Optional
-from app.view.components.ui.toast.toast_card  import Toast
-from app.view.components.ui.toast.toast_card  import ToastCard
+from app.view.components.ui.toast.toast_card import Toast
+from app.view.components.ui.toast.toast_card import ToastCard
 from app.view.components.ui.toast.toast_classes import Level, CLASSES
-
 
 class ToastManager:
     def __init__(self, page: ft.Page, safe_area_top: int) -> None:
@@ -46,17 +46,16 @@ class ToastManager:
     def _mount(self, toast: Toast) -> None:
         self._active.append(toast)
         theme   = CLASSES[toast.level]
-        is_dark = self._page.theme_mode == ft.ThemeMode.DARK
-        bg      = theme.bg_dark if is_dark else theme.bg_light
 
-        self._col.controls.append(ToastCard(toast=toast, bg=bg, on_dismiss=self._dismiss))
+        self._col.controls.append(ToastCard(toast=toast, page=self._page, on_dismiss=self._dismiss))
         self._page.update()
 
-        if theme.duration_s is not None:
-            t = threading.Timer(theme.duration_s, self._dismiss, args=[toast.id])
-            t.daemon = True
-            self._timers[toast.id] = t
-            t.start()
+        if theme.duration is not None:
+            def auto_dismiss():
+                time.sleep(float(theme.duration or 0))
+                self._dismiss(toast.id)
+            
+            self._page.run_thread(auto_dismiss)
 
     def _dismiss(self, toast_id: str) -> None:
         timer = self._timers.pop(toast_id, None)

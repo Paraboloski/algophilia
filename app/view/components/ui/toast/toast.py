@@ -14,4 +14,9 @@ class Toast:
 
     @staticmethod
     def make(message: str, level: Level, title: Optional[str] = None) -> "Toast":
-        return Toast(id=str(uuid.uuid4()), message=message, level=level, title=title)
+        return Toast(
+            id=str(uuid.uuid4()),
+            message=message,
+            level=level,
+            title=title
+        )

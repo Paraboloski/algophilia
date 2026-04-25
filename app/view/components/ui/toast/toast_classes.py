@@ -3,9 +3,8 @@ from __future__ import annotations
 from enum import Enum
 from pathlib import Path
 from typing import Optional
-from dataclasses import dataclass
-
 from app.config import settings
+from dataclasses import dataclass
 
 class Level(Enum):
     INFO = "info"
@@ -19,7 +18,7 @@ class Theme:
     bg_light:     str
     bg_dark:      str
     icon:         Path
-    duration_s:   Optional[int]
+    duration:   Optional[int]
 
 
 CLASSES: dict[Level, Theme] = {
@@ -28,20 +27,20 @@ CLASSES: dict[Level, Theme] = {
         bg_light=settings.APP_PAGE_BG_LIGHT_COLOR,
         bg_dark=settings.APP_PAGE_INFO_DARK_COLOR,
         icon=settings.APP_PAGE_INFO_ICON,
-        duration_s=4,
+        duration=4,
     ),
     Level.WARNING: Theme(
         border_color=settings.APP_PAGE_WARNING_LIGHT_COLOR,
         bg_light=settings.APP_PAGE_BG_LIGHT_COLOR,
         bg_dark=settings.APP_PAGE_WARNING_DARK_COLOR,
         icon=settings.APP_PAGE_WARNING_ICON,
-        duration_s=7,
+        duration=7,
     ),
     Level.ERROR: Theme(
         border_color=settings.APP_PAGE_ERROR_LIGHT_COLOR,
         bg_light=settings.APP_PAGE_BG_LIGHT_COLOR,
         bg_dark=settings.APP_PAGE_ERROR_DARK_COLOR,
         icon=settings.APP_PAGE_ERROR_ICON,
-        duration_s=None,
+        duration=None,
     ),
 }

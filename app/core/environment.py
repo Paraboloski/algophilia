@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from typing import Any, Callable, cast
 from app.core.exception import EnvError
 from app.core.result import Ok, Err, Result
@@ -6,6 +7,24 @@ from app.core.result import Ok, Err, Result
 class Env:
     def __init__(self, variable: str = ""):
         self._variable = f"{variable.rstrip('_')}_" if variable else ""
+        self._load_dotenv()
+
+    def _load_dotenv(self) -> None:
+        env_path = Path(__file__).resolve().parent.parent.parent / ".env"
+        if not env_path.exists():
+            return
+
+        with open(env_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line or line.startswith("#"):
+                    continue
+                if "=" in line:
+                    key, value = line.split("=", 1)
+                    key = key.strip()
+                    value = value.strip().strip("'").strip('"')
+                    if key:
+                        os.environ.setdefault(key, value)
 
     def _key(self, name: str) -> str:
         return f"{self._variable}{name.upper()}"

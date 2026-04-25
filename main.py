@@ -4,9 +4,10 @@ import flet as ft
 from pathlib import Path
 from app.view.fallback import Fallback
 from app.data.database import Database
+from app.core.result import Err
 from app.core.exception import AppError
 from app.services.registry import load_all
-from app.config import logger, Log, LoggingLevel, settings
+from app.config import logger, Log, LoggingLevel, settings, Panic
 from app.view.components.ui.toast import ToastLevel, ToastManager
 
 logger.init(Path(__file__).parent)
@@ -26,9 +27,14 @@ async def init_app() -> Database:
         schema=settings.SCHEMA_PATH
     )
 
-    (await db.connect()).unwrap()
+    res_conn = await db.connect()
+    if isinstance(res_conn, Err):
+        Panic._panic(f"Impossibile connettersi al database: {res_conn.error}")
+
     from app.data.seeder import seed_database
-    (await seed_database(db)).unwrap()
+    res_seed = await seed_database(db)
+    if isinstance(res_seed, Err):
+        Panic._panic(f"Inizializzazione dati (seeding) fallita: {res_seed.error}")
 
     return db
 
@@ -83,4 +89,4 @@ def main(page: ft.Page) -> None:
 
 
 if __name__ == "__main__":
-    ft.run(main, assets_dir="assets")
+    ft.run(main, assets_dir="app/assets")
