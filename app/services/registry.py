@@ -47,7 +47,7 @@ def load_registry(path: Path, model: Type[T], key: str | None = None) -> dict[st
 
 
 def load_all() -> None:
-    logger.info("Caricamento registry in corso")
+    logger.debug("Caricamento registry in corso")
     
     items.update(load_registry(settings.STATIC_ITEM_PATH, Item, "items"))
     souls.update(load_registry(settings.STATIC_SOUL_PATH, Soul, "souls"))
@@ -61,7 +61,7 @@ def load_all() -> None:
     conditions.update(load_registry(settings.STATIC_CONDITION_PATH, Condition, "conditions"))
     weapon_tags.update(load_registry(settings.STATIC_WEAPON_TAG_PATH, WeaponTag, "weapon_tags"))
 
-    logger.info(f"Registry caricato — {
+    logger.debug(f"Registry caricato — {
         sum(
             [
                 len(feats),

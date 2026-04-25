@@ -1,5 +1,5 @@
 import flet as ft
-from app.view.components.ui.fallback.content import Content
+from app.view.components.ui.fallback.fallback_content import Content
 
 def Page(title: str, message: str) -> ft.Container:
     return ft.Container(

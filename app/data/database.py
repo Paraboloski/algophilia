@@ -11,10 +11,10 @@ class Database:
         self.schema = Path(schema)
         self.db.parent.mkdir(parents=True, exist_ok=True)
         self.connection: aiosqlite.Connection | None = None
-        logger.info(f"Database inizializzato — db={self.db.name}, schema={self.schema.name}")
+        logger.debug(f"Database inizializzato — db={self.db.name}, schema={self.schema.name}")
 
     async def connect(self) -> Result[None]:
-        logger.info(f"Connessione a {self.db.name}")
+        logger.debug(f"Connessione a {self.db.name}")
         try:
             self.connection = await aiosqlite.connect(self.db)
             self.connection.row_factory = aiosqlite.Row
@@ -22,7 +22,7 @@ class Database:
             if not result.is_ok():
                 await self.close()
             else:
-                logger.info(f"Connesso a {self.db.name}")
+                logger.debug(f"Connesso a {self.db.name}")
             return result
         except Exception as e:
             logger.error(f"Connessione a {self.db.name} fallita", exc=e)
@@ -93,4 +93,4 @@ class Database:
         if self.connection:
             await self.connection.close()
             self.connection = None
-            logger.info(f"Connessione a {self.db.name} chiusa")
+            logger.debug(f"Connessione a {self.db.name} chiusa")

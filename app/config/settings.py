@@ -2,6 +2,8 @@ from pathlib import Path
 from app.core.environment import Env
 
 _DIR       = Path(__file__).resolve().parent.parent.parent
+_ICONS = _DIR / "assets" / "icons"
+_IMAGES = _DIR / "assets" / "images"
 _TEMPLATES = _DIR / "assets" / "templates"
 
 _env = Env()
@@ -12,10 +14,21 @@ class Settings:
 
     APP_NAME = "Algophilia"
 
-    APP_PAGE_BG_COLOR   = "#1A1A1A"
-    APP_PAGE_MAIN_COLOR = "#AB3326"
+    APP_PAGE_BG_LIGHT_COLOR = "#EFF6FF"
+    APP_PAGE_BG_DARK_COLOR   = "#1A1A1A"
+    APP_PAGE_INFO_DARK_COLOR = "#1E3A5F"
+    APP_PAGE_INFO_LIGHT_COLOR = "#3B82F6"
+    APP_PAGE_ERROR_DARK_COLOR = "#4A1515"
+    APP_PAGE_ERROR_LIGHT_COLOR = "#AB3326"
+    APP_PAGE_WARNING_DARK_COLOR = "#3D2A00"
+    APP_PAGE_WARNING_LIGHT_COLOR = "#F59E0B"
 
-    APP_PAGE_BG_FALLBACK_IMG = "/images/background/fallback.png"
+    APP_PAGE_BG_FALLBACK_IMG = _IMAGES / "bg-fallback.png"
+    
+    APP_PAGE_INFO_ICON = _ICONS / "info.svg"
+    APP_PAGE_ERROR_ICON = _ICONS / "error.svg"
+    APP_PAGE_CLOSE_ICON = _ICONS / "close.svg"
+    APP_PAGE_WARNING_ICON = _ICONS / "warning.svg"
 
     FONT_CINZEL_BOLD      = "/fonts/Cinzel-Bold.ttf"
     FONT_CINZEL_BLACK     = "/fonts/Cinzel-Black.ttf"

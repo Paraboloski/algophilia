@@ -27,7 +27,7 @@ async def seed_database(db: Database) -> Result[None]:
     if db.connection is None:
         logger.error("Seed avviato senza connessione attiva")
         return Err(DataError("Non connesso"))
-    logger.info("Seed in corso...")
+    logger.debug("Seed in corso...")
     try:
         seeded = 0
         for table, (registry, columns) in SEED_DATA.items():
@@ -56,7 +56,7 @@ async def seed_database(db: Database) -> Result[None]:
             seeded += len(rows)
 
         await db.connection.commit()
-        logger.info(f"Seed completato — {seeded} record totali")
+        logger.debug(f"Seed completato — {seeded} record totali")
         return Ok(None)
     except Exception as e:
         logger.error("Seed fallito", exc=e)

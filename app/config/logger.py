@@ -34,6 +34,13 @@ class Logger:
         self._logs:     list[Log] = []
         self._max_log_number: int = 200
         self._levels:     dict[Level, IO[str]] = {}
+        self._subscribers: list = []  
+        
+    def subscribe(self, callback) -> None:
+        self._subscribers.append(callback)
+
+    def unsubscribe(self, callback) -> None:
+        self._subscribers = [s for s in self._subscribers if s != callback]
         
     def init(self, base_dir: Path) -> None:
         _dir = base_dir / "logs"
@@ -77,6 +84,13 @@ class Logger:
             self._logs.pop(0)
 
         print(log)
+        
+        for sub in self._subscribers:
+            try:
+                sub(log)
+            except Exception:
+                pass
+    
         self._write(log)
 
     def _write(self, log: Log) -> None:
