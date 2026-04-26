@@ -3,7 +3,7 @@ from __future__ import annotations
 import time
 import flet as ft
 from typing import Callable
-from app.config import settings
+from app.view.style import settings
 from app.view.components.ui.toast.toast import Toast
 from app.view.components.common import Icon, Label, Title
 from app.view.components.ui.toast.toast_classes import CLASSES
@@ -21,7 +21,7 @@ def ToastCard(toast: Toast, page: ft.Page, on_dismiss: Callable[[str], None]) ->
 
     close = ft.Container(
         content=Icon(
-            settings.APP_PAGE_CLOSE_ICON,
+            settings._main_icons["close"],
             size=14,
             color=ft.Colors.with_opacity(0.5, ft.Colors.WHITE),
         ),
@@ -99,7 +99,7 @@ def ToastCard(toast: Toast, page: ft.Page, on_dismiss: Callable[[str], None]) ->
 
     card = ft.Container(
         content=content,
-        bgcolor=settings.APP_PAGE_BG_DARK_COLOR,
+        bgcolor=settings._main_colors["bg_dark"],
         border_radius=12,
         border=ft.border.all(1, border),
         clip_behavior=ft.ClipBehavior.ANTI_ALIAS,

@@ -1,5 +1,6 @@
 import flet as ft
 
+
 def Label(value: str, color: str, font_family: str, size: int, letter_spacing: int, text_align) -> ft.Text:
     return ft.Text(
         value=value.upper(),

@@ -1,5 +1,6 @@
 import flet as ft
 
+
 def Stripe(color: str) -> ft.Container:
     return ft.Container(
         width=12,

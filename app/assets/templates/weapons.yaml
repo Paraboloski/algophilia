@@ -1,0 +1,11 @@
+- key: ""
+  name: ""
+  weight: 0
+  description: ""
+  weapon_tags: []
+  base_damage:
+    dice_count: 1
+    dice_value: 6
+  two_hand_damage:
+    dice_count: 1
+    dice_value: 8

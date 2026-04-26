@@ -1,65 +1,30 @@
 from pathlib import Path
-from app.core.result import Err
-from app.config.panic import Panic
-from app.core.environment import Env
+from app.utils import Env
 
-_DIR = Path(__file__).resolve().parent.parent.parent
-_ICONS = _DIR / "app" / "assets" / "icons"
-_IMAGES = _DIR / "app" / "assets" / "images"
-_TEMPLATES = _DIR / "app" / "assets" / "templates"
-
-_env = Env()
+_YAML_FILES = [
+    Path("app/assets/templates/feats.yaml"),
+    Path("app/assets/templates/items.yaml"),
+    Path("app/assets/templates/souls.yaml"),
+    Path("app/assets/templates/armors.yaml"),
+    Path("app/assets/templates/spells.yaml"),
+    Path("app/assets/templates/origins.yaml"),
+    Path("app/assets/templates/weapons.yaml"),
+    Path("app/assets/templates/conditions.yaml"),
+    Path("app/assets/templates/knowledges.yaml"),
+    Path("app/assets/templates/accessories.yaml"),
+    Path("app/assets/templates/weapon_tags.yaml"),
+]
 
 
 class Settings:
-    APP_PAGE_WIGHT = 402
-    APP_PAGE_HEIGHT = 874
-
-    APP_NAME = "Algophilia"
-
-    APP_PAGE_BG_LIGHT_COLOR = "#EFF6FF"
-    APP_PAGE_BG_DARK_COLOR = "#15161A"
-    APP_PAGE_INFO_DARK_COLOR = "#1E3A5F"
-    APP_PAGE_INFO_LIGHT_COLOR = "#3B82F6"
-    APP_PAGE_ERROR_DARK_COLOR = "#4A1515"
-    APP_PAGE_ERROR_LIGHT_COLOR = "#AB3326"
-    APP_PAGE_WARNING_DARK_COLOR = "#3D2A00"
-    APP_PAGE_WARNING_LIGHT_COLOR = "#F59E0B"
-
-    APP_PAGE_BG_FALLBACK_IMG = _IMAGES / "bg-fallback.png"
-
-    APP_PAGE_INFO_ICON = _ICONS / "info.svg"
-    APP_PAGE_ERROR_ICON = _ICONS / "error.svg"
-    APP_PAGE_CLOSE_ICON = _ICONS / "close.svg"
-    APP_PAGE_WARNING_ICON = _ICONS / "warning.svg"
-
-    FONT_CINZEL_BOLD = "/fonts/Cinzel-Bold.ttf"
-    FONT_CINZEL_BLACK = "/fonts/Cinzel-Black.ttf"
-    FONT_CINZEL_MEDIUM = "/fonts/Cinzel-Medium.ttf"
-    FONT_CINZEL_REGULAR = "/fonts/Cinzel-Regular.ttf"
-    FONT_CINZEL_SEMIBOLD = "/fonts/Cinzel-SemiBold.ttf"
-    FONT_CINZEL_EXTRABOLD = "/fonts/Cinzel-ExtraBold.ttf"
-
-    SCHEMA_PATH = _TEMPLATES / "schema.sql"
-    STATIC_ITEM_PATH = _TEMPLATES / "static_item.yaml"
-    STATIC_SOUL_PATH = _TEMPLATES / "static_soul.yaml"
-    STATIC_STAT_PATH = _TEMPLATES / "static_stat.yaml"
-    STATIC_SKILL_PATH = _TEMPLATES / "static_skill.yaml"
-    STATIC_ORIGIN_PATH = _TEMPLATES / "static_origin.yaml"
-    STATIC_CONDITION_PATH = _TEMPLATES / "static_condition.yaml"
-    STATIC_KNOWLEDGE_PATH = _TEMPLATES / "static_knowledge.yaml"
-    STATIC_WEAPON_TAG_PATH = _TEMPLATES / "static_weapon_tag.yaml"
-
-    _db_url = _env.string("DATABASE_URL")
-    if isinstance(_db_url, Err):
-        Panic._panic(str(_db_url.error))
-
-    DATABASE_PATH: Path = Path(
-        _db_url.unwrap().replace("sqlite:///", "")
-    )
-
-    TELEGRAM_TOKEN = _env.string("TELEGRAM_TOKEN").map(lambda x: x).unwrap()
-    TELEGRAM_CHAT_ID = _env.string("TELEGRAM_CHAT_ID").map(lambda x: x).unwrap()
+    def __init__(self):
+        _env = Env()
+        self._yaml_files = _YAML_FILES
+        self._log_dir = "app/assets/logs"
+        self._database_url = _env.require("DATABASE_URL")
+        self._sql_schema = "app/assets/templates/schema.sql"
+        self._telegram_token = _env.get_env("TELEGRAM_TOKEN")
+        self._telegram_chat_id = _env.get_env("TELEGRAM_CHAT_ID")
 
 
 settings = Settings()

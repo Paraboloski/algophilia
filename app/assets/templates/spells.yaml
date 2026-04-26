@@ -1,0 +1,9 @@
+- key: ""
+  name: ""
+  affinity_with_god: ""
+  description: ""
+  required_affinity_level: 1
+  enhanced_effect:
+    title: ""
+    affinity_required: 0
+    description: ""

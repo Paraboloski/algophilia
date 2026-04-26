@@ -110,8 +110,11 @@ CREATE INDEX IF NOT EXISTS idx_souls_month ON souls (month);
 CREATE TABLE IF NOT EXISTS origins (
     name TEXT NOT NULL,
     key TEXT PRIMARY KEY,
-    description TEXT NOT NULL DEFAULT ''
+    description TEXT NOT NULL DEFAULT '',
+    knowledges TEXT NOT NULL DEFAULT '[]',
+    starting_equip TEXT NOT NULL DEFAULT '[]'
 );
+
 
 CREATE INDEX IF NOT EXISTS idx_origins_name ON origins (name);
 

@@ -1,5 +1,6 @@
 import flet as ft
 
+
 def Title(value: str, color: str, font_family: str, size: int, text_align: ft.TextAlign) -> ft.Container:
     return ft.Container(
         content=ft.Text(

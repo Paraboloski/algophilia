@@ -1,5 +1,6 @@
 import flet as ft
 
+
 def Card(
     content: ft.Control,
     border_radius: ft.BorderRadius,
