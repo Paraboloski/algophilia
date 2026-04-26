@@ -1,7 +1,7 @@
 import flet as ft
 from app.config import Container
-from app.view.components.ui.toast import ToastManager
 from app.view.style import settings
+from app.view.components.ui.toast import ToastManager
 
 class App:
     def __init__(self, page: ft.Page, container: Container):
@@ -10,10 +10,10 @@ class App:
         
         self.toast = ToastManager(page, safe_area_top=40)
         
+        self.page.padding = 0
         self.page.title = settings._app_name
         self.page.window.width = settings._main_width
         self.page.window.height = settings._main_height
-        self.page.padding = 0
         self.page.bgcolor = settings._main_colors["bg_dark"]
         
         self.page.fonts = {
@@ -61,5 +61,5 @@ class App:
             alignment=ft.alignment.Alignment(0, 0),
         ))
 
-        self.toast.info("Benvenuto in Algophilia!")
+        self.toast.info("GASI!")
         self.page.update()
