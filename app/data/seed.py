@@ -2,8 +2,8 @@ import json
 import yaml
 from pathlib import Path
 from aiosqlite import Connection
-from app.middleware import Result, Ok, SQliteError, async_result_wrap
 from app.events.logger import Logger
+from app.middleware import Result, Ok, SQliteError, async_result_wrap
 
 
 class Seeder:

@@ -1,7 +1,7 @@
+from typing import Optional
+from datetime import datetime
 from enum import Enum as _Enum
 from dataclasses import dataclass, field
-from datetime import datetime
-from typing import Optional
 
 class Level(str, _Enum):
     INFO = "info"
