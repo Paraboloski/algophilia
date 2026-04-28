@@ -1,46 +1,51 @@
 import sys
-import traceback
 import flet as ft
 from app.view.app import App
+from typing import Any, Never
+from app.utils import AppError
 from app.config import Container
-from app.middleware import Result, Ok, Err
-from app.middleware.exception import AppError
 
-async def bootstrap(container: Container) -> Result:
+def panic(err: Any) -> Never:
+    print(f"panic: {err}", file=sys.stderr)
+    sys.exit(1)
+
+async def bootstrap(container: Container) -> None:
     logger = container.logger()
-    telegram = container.telegram()
-    
-    logger.subscribe(telegram.send)
-    
-    db = container.database()
-    result = await db.start()
-    
-    if isinstance(result, Err):
-        logger.error("Bootstrap: Errore inizializzazione DB", result.error)
-        return result
+    logger.subscribe(container.telegram().send)
 
-    return Ok(True)
+    result = await container.database().start()
+    if result.is_err():
+        err = result.unwrap_err()
+        logger.error(f"Bootstrap: Errore inizializzazione DB | {err}")
+        panic(err)
 
-async def main(page: ft.Page):
+async def shutdown(container: Container) -> None:
+    result = await container.database().disconnect()
+    if result.is_err():
+        container.logger().error(f"Shutdown: {result.unwrap_err()}")
+
+    container.worker().shutdown()
+    container.logger()._directory._rmdir()
+
+async def main(page: ft.Page) -> None:
+    container = Container()
+    _done = False
+
+    def cleanup() -> None:
+        nonlocal _done
+        if not _done:
+            _done = True
+            page.run_task(shutdown, container)
+
+    page.on_close = cleanup
+    page.on_disconnect = cleanup
+
+    await bootstrap(container)
+
     try:
-        container = Container()
-        
-        def cleanup():
-            container.worker().shutdown()
-            container.logger()._directory._rmdir()
-
-        page.on_disconnect = lambda _: cleanup()
-        page.on_close = lambda _: cleanup()
-
-        await bootstrap(container)
-        app = App(page, container)
-        await app.build()
+        await App(page, container).build()
     except AppError as e:
-        traceback.print_exc()
-        sys.exit(1)
+        panic(e)
 
 if __name__ == "__main__":
-    ft.run(
-        main, 
-        assets_dir="app/assets"
-    )
+    ft.run(main, assets_dir="app/assets")

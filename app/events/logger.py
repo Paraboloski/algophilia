@@ -7,9 +7,9 @@ from typing import Any, Callable, Optional
 
 
 class Logger:
-    def __init__(self, dir: Dir, worker: Worker):
-        self._directory = dir
+    def __init__(self, directory: Dir, worker: Worker):
         self._worker = worker
+        self._directory = directory
         self._worker.subscribe(self._write)
 
     def _write(self, log: Log):
@@ -32,17 +32,17 @@ class Logger:
 
         self._worker.dispatch(log)
 
-    def info(self, msg: str):
-        self._log(LogLevel.INFO, msg)
+    def info(self, message: str):
+        self._log(LogLevel.INFO, message)
 
-    def debug(self, msg: str):
-        self._log(LogLevel.DEBUG, msg)
+    def debug(self, message: str):
+        self._log(LogLevel.DEBUG, message)
 
-    def warn(self, msg: str):
-        self._log(LogLevel.WARNING, msg)
+    def warn(self, message: str):
+        self._log(LogLevel.WARNING, message)
 
-    def error(self, msg: str, err: Optional[Any] = None):
-        self._log(LogLevel.ERROR, msg, err)
+    def error(self, message: str, err: Optional[Any] = None):
+        self._log(LogLevel.ERROR, message, err)
 
-    def subscribe(self, callback: Callable[[Log], None]):
-        self._worker.subscribe(callback)
+    def subscribe(self, f: Callable[[Log], Any]):
+        self._worker.subscribe(f)

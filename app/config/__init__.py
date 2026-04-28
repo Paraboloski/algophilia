@@ -3,5 +3,6 @@ from app.config.container import DependencyInjectorContainer as Container
 
 __all__ = [
     "settings",
-    "Container"
+    "Container",
+
 ]

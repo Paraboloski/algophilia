@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 
 
@@ -10,9 +11,8 @@ class Directory:
         self._directory.mkdir(parents=True, exist_ok=True)
 
     def _rmdir(self):
-        for f in self._directory.iterdir():
-            if f.is_file():
-                f.unlink()
+        if self._directory.exists():
+            shutil.rmtree(self._directory)
 
     def write(self, filename: str, content: str):
         path = self._directory / filename

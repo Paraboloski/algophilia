@@ -1,19 +1,17 @@
 import os
+from result import Err, Ok, Result
+from app.utils.exception import EnvError
 from dotenv import find_dotenv, load_dotenv
-from app.middleware import EnvError, Err, Ok, result_wrap
 
 if os.getenv("ENV") != "PRODUCTION":
     load_dotenv(find_dotenv())
 
-
 class Environment:
-
-    @result_wrap
-    def get_env(self, key: str) -> Ok | Err:
+    def get_env(self, key: str) -> Result[str, EnvError]:
         value = os.getenv(key)
 
         if value is None:
-            raise EnvError(f"Variabile d'ambiente assente: {key}")
+            return Err(EnvError(key))
 
         return Ok(value)
 
@@ -21,6 +19,6 @@ class Environment:
         result = self.get_env(key)
 
         if isinstance(result, Err):
-            raise result.error
+            raise result.unwrap()
 
         return result.value
